@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class BaseModel(ABC):
     def __init__(self):
-        pass
+        self.report = ""
 
     @abstractmethod
     def run(self):
