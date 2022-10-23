@@ -9,3 +9,4 @@
 - PELT
 - identify date and sort by date
 - dropna
+- proper logging

@@ -6,6 +6,8 @@ from scipy.ndimage import gaussian_filter1d
 
 class ConcavityModel:
     """
+    to detect steep concave upward/downwards in dataset
+
     threshold mode: might return multiple values
     non-threshold mode: return max cliff
     """
@@ -32,23 +34,26 @@ class ConcavityModel:
         g[i] = 0
         return g
     
-    def _threshold_idx(self, arr):
+    def _get_threshold_idx(self, arr):
         idx = np.where(arr > self.threshold, True, False)
         if len(idx.shape) > 1:
             idx = np.pad(idx, [(0, 0), (1, 0)], mode='constant')
         else:
             idx = np.pad(idx, (1, 0), mode='constant')
         return idx
+    
+    def visualize(self):
+        pass
 
     def run(self, X, y):
         g = self._pairwise_gradient(X, y)
         print(g)
         if self.threshold:
-            idx = self._threshold_idx(g)
+            idx = self._get_threshold_idx(g)
             print(idx)
         else:
             # TODO find 99th percentile? or max?
-            pass
+            raise
         # TODO check idx
         self.report += f"cliff found at position {idx} with gradient {g}"
         return self

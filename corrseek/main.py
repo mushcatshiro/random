@@ -3,8 +3,7 @@ import os
 
 import pandas as pd
 
-from bootstrap.preprocess import scale
-from bootstrap.linear import LinearModel
+from bootstrap import *
 
 
 def main(
