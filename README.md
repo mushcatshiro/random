@@ -16,6 +16,7 @@ a highly opinionated correlation seeking package.
 - supporting group analysis
   - multicolumn sort
 - taichi lang for speedup
+- proper logging
 
 ```python
 df = pd.read_csv("out.csv")
