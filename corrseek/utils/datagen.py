@@ -19,8 +19,16 @@ class DataGenerator:
             x for x in self._dataset.columns.tolist()
             if x not in [ycol, datecol, groupcol]
         ]
-        self.metadata = {}
+        self.metadata = {"dataset": {}}
         self.check_normality()
+        self.check_overall_sparsity()
+    
+    def check_overall_sparsity(self):
+        null_count = self._dataset.isnull().values.sum()
+        full_count = self._dataset.size
+        sparsity = null_count / full_count
+        self.metadata["dataset"]["sparsity"] = sparsity
+        print(f"sparsity: {round(sparsity * 100, 2)}%")
 
     @property
     def groups(self):
@@ -34,8 +42,13 @@ class DataGenerator:
         self._dataset.to_csv("ydrop.csv", index=False)
 
     def _read_data(self, fname, inp_type):
+        """
+        TODO dealing with total empty columns
+        """
         if inp_type == "csv":
             df = pd.read_csv(fname)
+        if inp_type == "nparray":
+            df = fname
 
         # remove all nan from y
         print(df.shape)
@@ -47,19 +60,25 @@ class DataGenerator:
         print(df.shape)
         return df
 
-    def check_normality(self):
+    def check_normality(self, alpha=1e-3):
+        # TODO post check to generate corresponding cfg
         for col in self._cols:
             tmp = self._dataset[col].to_numpy() 
-            print(col)
-            print(tmp)
+            # print(col)
+            # print(tmp)
             if np.sum(~np.isnan(tmp)) < 10:
                 print("col has less than 10 samples")
                 continue
             k, p = stats.normaltest(tmp, nan_policy="omit")        
-            print(k, p)
+            conclusion = "non normal" if p < alpha else "normal"
+            print(f"k: {k}; p: {p}, conclusion: {conclusion}")
         
 
-    def generate(self, col, date=False) -> Union[np.ndarray, np.ndarray, Any]:
+    def generate(self, col, date=False, group=False) -> Union[np.ndarray, np.ndarray, Any]:
+        """
+        TODO
+        return dataframe instead fpr group support
+        """
         idx = np.where(self._dataset[col].notna())
         tmp = self._dataset.iloc[idx[0], :]
         if date:
