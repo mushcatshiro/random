@@ -15,8 +15,9 @@ a highly opinionated correlation seeking package.
 - (idea) read csv once with index that make sense, sort along with each bootstrapped model and reset index based on index
 - supporting group analysis
   - multicolumn sort
-- taichi lang for speedup
+- taichi lang/jit compiler for speedup
 - proper logging
+- assumptions check
 
 ```python
 df = pd.read_csv("out.csv")

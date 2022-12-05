@@ -13,7 +13,7 @@ class PolynomialModel(BaseModel):
         if order > 2:
             warnings.warn(
                 "order higher than 2 is not recommended "
-                "as overfitting is likely happen"
+                "as overfitting is likely to happen"
             )
         self.preprocessing = PolynomialFeatures(
             degree=order, interaction_only=interaction

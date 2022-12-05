@@ -15,7 +15,7 @@ class LinearModel(BaseModel):
         """
         self.model = LinearRegression()
         self.topn = topn
-        self.threshold = threshold
+        self.threshold = None
         assert self.topn or self.threshold, "topn or threshold must be set"
 
     def run(self, X:DataFrame, y:DataFrame, validate=False):
@@ -48,7 +48,9 @@ class LinearModel(BaseModel):
         return self
 
     def visualize(self, X, y, save=False):
-        # TODO changing to sns for ease of mind
+        # TODO
+        # changing to sns for ease of mind
+        # plot only significant mode + plot all mode
         for col in X.columns:
             reg = self.model.fit(X[col].to_numpy().reshape(-1, 1), y)
             pred = reg.predict(X[col].to_numpy().reshape(-1, 1))

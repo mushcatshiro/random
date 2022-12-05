@@ -46,6 +46,8 @@ class ConcavityModel:
         pass
 
     def run(self, X, y):
+        # TODO
+        # axis 0 or 1 to run in parallel
         g = self._pairwise_gradient(X, y)
         print(g)
         if self.threshold:
@@ -58,12 +60,12 @@ class ConcavityModel:
         self.report += f"cliff found at position {idx} with gradient {g}"
         return self
 
-m = ConcavityModel(sigma=1, threshold=2)
-y = np.asarray([1, 2, 3, 4, 8, 9, 9])
+# m = ConcavityModel(sigma=1, threshold=2)
+# y = np.asarray([1, 2, 3, 4, 8, 9, 9])
 # X = np.asarray([[1, 2, 3, 4, 5, 6, 7], [1, 1, 2, 3, 4, 5, 6]])
-X = np.asarray([1, 2, 3, 4, 5, 6, 7])
-print(X.shape)
-m.run(X=X, y=y)
+# X = np.asarray([1, 2, 3, 4, 5, 6, 7])
+# print(X.shape)
+# m.run(X=X, y=y)
 # raw = np.cumsum(np.random.normal(5, 100, 1000))
 # print(raw.shape)
 # smooth = gaussian_filter1d(raw, 100)
