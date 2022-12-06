@@ -1,3 +1,5 @@
 rdn/
 *.csv
 __pycache__/
+doc.md
+.vscode/
