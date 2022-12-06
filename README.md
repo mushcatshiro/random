@@ -19,13 +19,15 @@ a highly opinionated correlation seeking package.
 - [ ] using log to check for cliffs?
 - [ ] PELT
 - [ ] identify date and sort by date
-- [ ] dropna
+- [ ] dealing with nan
 - [ ] (idea) read csv once with index that make sense, sort along with each bootstrapped model and reset index based on index
 - [ ] supporting group analysis
   - multicolumn sort
 - [ ] taichi lang/jit compiler for speedup
 - [ ] proper logging
-- assumptions check
+- [ ] assumptions checks
+- [ ] database support for model versioning
+- [ ] web support
 
 ```python
 df = pd.read_csv("out.csv")
