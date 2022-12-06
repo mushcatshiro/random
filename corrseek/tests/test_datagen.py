@@ -28,7 +28,8 @@ class TestDataGenerator(unittest.TestCase):
             "col_0",
             "datetime",
             "group",
-            "nparray"
+            "nparray",
+            "mp3s"
         )
         return super().setUp()
     
