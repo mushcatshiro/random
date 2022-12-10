@@ -2,18 +2,23 @@ from contextlib import contextmanager
 import datetime as dt
 import json
 import os
+import pickle
 import sqlite3 as s
 
 
 class CHKPT:
     def __init__(self, db_dir, fname):
-        if not os.path.exists(db_dir):
-            raise ValueError(
-                f"path provided does not exists {db_dir}"
-            )
-        self.db_abs_dir = os.path.join(db_dir, fname)
-        if not os.path.isfile(self.db_abs_dir):
+        if db_dir == ":memory":
+            self.db_abs_dir = db_dir
             self.initialize()
+        else:
+            if not os.path.exists(db_dir):
+                raise ValueError(
+                    f"path provided does not exists {db_dir}"
+                )
+            self.db_abs_dir = os.path.join(db_dir, fname)
+            if not os.path.isfile(self.db_abs_dir):
+                self.initialize()
         
     @contextmanager
     def _conn(self):
@@ -27,42 +32,43 @@ class CHKPT:
         with self._conn() as conn:
             cur = conn.cursor()
             cur.execute(
-                '''CREATE TABLE IF NOT EXISTS model (
+                '''CREATE TABLE IF NOT EXISTS model_versioning (
                         id TEXT PRIMARY KEY,
                         modelname TEXT NOT NULL,
                         timestamp TEXT NOT NULL,
                         inuse INT NOT NULL,
-                        parameters TEXT NOT NULL
+                        model BLOB NOT NULL
                     )
                 '''
             )
     
-    def save_model(self, payload):
+    def save_model(self, modelname, model):
         with self._conn() as conn:
             cur = conn.cursor()
             cur.execute(
-                '''UPDATE model
+                '''UPDATE model_versioning
                     SET inuse = 0
                     WHERE
                         modelname = ?
                 ''',
                 (
-                    payload['modelname'],
+                    modelname,
                 )
             )
             cur.execute(
-                f'''INSERT INTO model (
+                f'''INSERT INTO model_versioning (
                     modelname,
                     timestamp,
                     inuse,
-                    parameters
-                ) VALUES (
-                    '{payload['modelname']}',
-                    '{dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}',
+                    model
+                ) VALUES (?, ?, ?, ?)
+                ''',
+                (
+                    modelname,
+                    dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                     1,
-                    '{json.dumps(payload['parameters'])}'
+                    pickle.dumps(model)
                 )
-                '''
             )
             conn.commit()
 
@@ -70,8 +76,8 @@ class CHKPT:
         with self._conn() as conn:
             cur = conn.cursor()
             cur.execute(
-                '''SELECT parameters
-                    FROM model
+                '''SELECT model
+                    FROM model_versioning
                     WHERE
                         modelname = ?
                         AND inuse = 1
@@ -81,4 +87,6 @@ class CHKPT:
                 )
             )
             ret = cur.fetchone()[0]
-            return json.loads(ret)
+            if not ret:
+                raise ValueError(f"no model found with modelname {modelname}")
+            return pickle.loads(ret)
