@@ -1,24 +1,27 @@
 import os
 import unittest
 
+import numpy as np
+from sklearn.linear_model import LinearRegression
+
 from utils import CHKPT
 
 
-payload = {
-    "model1": {
-        "modelname": "testmodel1",
-        "parameters": {"alpha": 1, "beta": 2}
-    },
-    "model2": {
-        "modelname": "testmodel2",
-        "parameters": {"alpha": 0.5, "beta": 13}
-    }
-}
+X = np.random.rand(100)
+y1 = X + np.random.rand(100)
+model1 = LinearRegression().fit(
+    X=X.reshape(-1, 1),
+    y=y1.reshape(-1, 1)
+)
+model2 = LinearRegression().fit(
+    X=X.reshape(-1, 1),
+    y=X
+)
 
 
 class TestCHKPT(unittest.TestCase):
     def setUp(self) -> None:
-        self.db = CHKPT(
+        self.db: CHKPT = CHKPT(
             os.getenv('CORRSEEKDBPATH') or os.getcwd(),
             os.getenv('CORESEEKDBNAME') or 'corrseekchkpt'
         )
@@ -30,14 +33,15 @@ class TestCHKPT(unittest.TestCase):
         return super().tearDown()
 
     def _test_save_new_model(self):
-        self.db.save_model(payload["model1"])
-        ret = self.db.retrieve_model(payload["model1"]["modelname"])
-        self.assertEqual(ret, payload["model1"]["parameters"])
+        self.db.save_model("modelname", model1)
+        ret:LinearRegression = self.db.retrieve_model("modelname")
+        self.assertEqual(ret.get_params(), model1.get_params())
 
     def _test_update_model(self):
-        ret = self.db.save_model(payload["model2"])
-        self.assertEqual(ret, payload["model1"]["parameters"])
+        self.db.save_model("modelname", model2)
+        ret:LinearRegression = self.db.retrieve_model("modelname")
+        self.assertEqual(ret.get_params(), model2.get_params())
     
     def test_run(self):
         self._test_save_new_model()
-        self._test_update_model
+        self._test_update_model()
