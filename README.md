@@ -28,10 +28,23 @@ a highly opinionated correlation seeking package.
 - [ ] assumptions checks
 - [ ] database support for model versioning
 - [ ] web support
+- [ ] model validation
+- [ ] schema validation
+- [ ] standardize imports especially for package distribution and runner
+- [ ] config template generator
+- [ ] enable multivariate analysis
 
 ```python
 df = pd.read_csv("out.csv")
 print(id(df))  # >>> 2848833486984
 tmp = df.iloc[:, :1]
 print(id(tmp))  # >>> 2848833488008
+```
+
+## quick guide
+
+### metadata schema
+
+```json
+
 ```
