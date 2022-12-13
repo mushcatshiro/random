@@ -5,19 +5,13 @@ import os
 from utils import CHKPT
 
 class BaseModel(ABC):
-    def __init__(self, chkpt: CHKPT, run_name=None, report_dir=None):
+    def __init__(self, chkpt: CHKPT, run_name, report_dir=None):
         self.report = ""
         self.modelname = None
-        self.run_name = self._run_name(run_name)
+        self.run_name = run_name
         self.report_dir = self._report_dir(report_dir)
         self.chkpt:CHKPT = chkpt
         self.model = self.determine_run()
-    
-    def _run_name(self, run_name):
-        if run_name is None:
-            return dt.datetime.now().strftime("%Y%m%d%H%M%S")
-        else:
-            return run_name
     
     def _report_dir(self, report_dir):
         if report_dir is None:
@@ -25,7 +19,8 @@ class BaseModel(ABC):
                 os.getcwd(),
                 f"{self.run_name}"
             )
-        os.mkdir(report_dir)
+        if not os.path.exists(report_dir):
+            os.mkdir(report_dir)
         return report_dir
     
     @abstractmethod
