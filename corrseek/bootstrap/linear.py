@@ -8,7 +8,7 @@ from utils import CHKPT
 
 class linearModel(BaseModel):
     def __init__(
-        self, X, y, metadata, chkpt: CHKPT=None, run_name=None, report_dir=None
+        self, X, y, metadata, chkpt: CHKPT, run_name, report_dir=None
     ):
         self.X = X
         self.y = y
@@ -17,9 +17,17 @@ class linearModel(BaseModel):
 
     def run(self):
         reg = self.model.fit(self.X, self.y)
+        score = reg.score(self.X, self.y)
+        if score < 0.2:
+            fit = "good"
+        elif score > 0.2 and score < 0.7:
+            fit = "moderate"
+        elif score > 0.7:
+            fit = "bad"
         self.report +=\
-            "initial fitting:\n"\
-            f"score: {reg.score(self.X, self.y)}\n"\
+            "model learnt:\n"\
+            f"score: {score}\n"\
+            f"fit: {fit}\n"\
             f"coef: {reg.coef_}\n"\
             f"intecept: {reg.intercept_}\n"
         self.modelname =\
@@ -31,7 +39,7 @@ class linearModel(BaseModel):
 
 class LinearModel(linearModel):
     def determine_run(self):
-        if len(self.X.shape) > 1 or len(self.y.shape) > 1:
+        if self.X.shape[1] > 1 or self.y.shape[1] > 1:
             raise ValueError("expects 1D for X and y")
         if self.metadata["normality"] or self.metadata["force_normal"]:
             return LinearRegression()
