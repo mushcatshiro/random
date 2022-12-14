@@ -1,10 +1,9 @@
 import numpy as np
-from scipy.ndimage import gaussian_filter1d
 
-# from .base import BaseModel
+from .base import BaseModel
 
 
-class ConcavityModel:
+class ConcavityModel(BaseModel):
     """
     to detect steep concave upward/downwards in dataset
 
@@ -16,7 +15,7 @@ class ConcavityModel:
         self.sigma = sigma
         self.threshold = threshold
         self.report = ""
-    
+
     def _gaussian_filter_id(self, size):
         filter_range = np.linspace(-int(size/2),int(size/2),size)
         gaussian_filter = [
@@ -24,16 +23,28 @@ class ConcavityModel:
             for x in filter_range
         ]
         return gaussian_filter
-    
+
     def _pairwise_gradient(self, X, y):
+        split = len(X)//2
         if len(X.shape) > 1:
-            g = (y[1:] - y[:-1])/(X[:, 1:] - X[:, :-1])
+        
+            g = (y[split:] - y[:-split])/(X[:, split:] - X[:, :-split])
         else:
-            g = (y[1:] - y[:-1])/(X[1:] - X[:-1])
+            g = (y[split:] - y[:-split])/(X[split:] - X[:-split])
         i = np.isinf(g)
         g[i] = 0
         return g
-    
+
+    def _moving_average(self, arr, n):
+        ret = np.cumsum(arr, axis=1)
+        ret[:, n:] = ret[:, n:] - ret[:, :-n]
+        return ret[:, n-1:]/n
+
+    def _cluster_approach(self, X, y, n):
+        c = np.asarray([X, y])
+        cluster = np.average(c.reshape(-1, n, 2), axis=1)
+        return cluster
+
     def _get_threshold_idx(self, arr):
         idx = np.where(arr > self.threshold, True, False)
         if len(idx.shape) > 1:
@@ -41,7 +52,7 @@ class ConcavityModel:
         else:
             idx = np.pad(idx, (1, 0), mode='constant')
         return idx
-    
+
     def visualize(self):
         pass
 
